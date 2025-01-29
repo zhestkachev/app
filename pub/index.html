@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Mini App - Задачи</title>
+    <title>Telegram Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -12,9 +12,8 @@
             margin: 0;
             padding: 0;
             background-color: black;
-            background-image: url('snowflakes.png'); /* Добавляем орнамент снежинок */
-            background-size: cover;
-            color: white;
+            background-image: url('snowflakes.png');
+            background-repeat: repeat;
         }
         .container {
             margin-top: 50px;
@@ -29,64 +28,82 @@
             cursor: pointer;
             margin: 5px;
         }
+        .task-container {
+            margin-top: 20px;
+        }
         .task {
             background-color: lightgray;
             padding: 10px;
-            margin: 5px 0;
+            margin: 5px;
             border-radius: 5px;
-        }
-        input {
-            padding: 5px;
-            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Задачи</h1>
-        <button id="addTask">+</button>
-        <button id="exportTasks">Выгрузить в Word</button>
-        <div id="taskList"></div>
+        <h1>Добро пожаловать в Mini App!</h1>
+        <button id="report">Отчетность</button>
+        <button id="tasks">Задачи</button>
     </div>
+    <div id="taskPage" class="container" style="display:none;">
+        <button id="addTask">+</button>
+        <div id="taskList" class="task-container"></div>
+    </div>
+    <button id="exportTasks">Выгрузить список задач в Word</button>
 
     <script>
-        document.getElementById('addTask').addEventListener('click', addTask);
-        document.getElementById('exportTasks').addEventListener('click', exportToWord);
-
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        
+        document.getElementById('tasks').addEventListener('click', () => {
+            document.querySelector('.container').style.display = 'none';
+            document.getElementById('taskPage').style.display = 'block';
+        });
+        
+        document.getElementById('addTask').addEventListener('click', () => {
+            addTask();
+        });
+        
         function addTask() {
-            const taskDiv = document.createElement('div');
-            taskDiv.className = 'task';
+            const taskContainer = document.createElement('div');
+            taskContainer.classList.add('task');
             
             const input = document.createElement('input');
             input.type = 'text';
             input.placeholder = 'Введите задачу';
-            
-            const dateInput = document.createElement('input');
-            dateInput.type = 'date';
-            
             input.addEventListener('keypress', function(event) {
                 if (event.key === 'Enter') {
                     addTask();
                 }
             });
             
-            taskDiv.appendChild(input);
-            taskDiv.appendChild(dateInput);
-            document.getElementById('taskList').appendChild(taskDiv);
+            const dateInput = document.createElement('input');
+            dateInput.type = 'date';
+            
+            taskContainer.appendChild(input);
+            taskContainer.appendChild(dateInput);
+            document.getElementById('taskList').appendChild(taskContainer);
         }
-
-        function exportToWord() {
-            const tasks = document.querySelectorAll('.task input[type="text"]');
-            let taskText = 'Список задач:\n\n';
-            tasks.forEach(task => {
-                taskText += '- ' + task.value + '\n';
+        
+        document.getElementById('exportTasks').addEventListener('click', () => {
+            exportTasksToWord();
+        });
+        
+        function exportTasksToWord() {
+            let content = 'Список задач:\n\n';
+            document.querySelectorAll('.task').forEach(task => {
+                const text = task.querySelector('input[type=text]').value;
+                const date = task.querySelector('input[type=date]').value;
+                content += `- ${text} (Срок: ${date})\n`;
             });
             
-            const blob = new Blob([taskText], { type: 'application/msword' });
+            const blob = new Blob([content], { type: 'application/msword' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = 'tasks.docx';
+            link.download = 'tasks.doc';
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>
