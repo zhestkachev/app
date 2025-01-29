@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini App Tasks</title>
+    <title>Telegram Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,7 +12,7 @@
             margin: 0;
             padding: 0;
             background-color: black;
-            color: white;
+            background-image: url('https://www.transparenttextures.com/patterns/snow.png');
         }
         .container {
             margin-top: 50px;
@@ -34,72 +35,67 @@
             margin-right: auto;
         }
         .task {
-            background-color: #f0f0f0;
-            color: black;
+            background-color: lightgray;
             padding: 10px;
-            margin-bottom: 10px;
+            margin: 5px 0;
             border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        input[type="text"], input[type="date"] {
-            width: calc(100% - 22px);
-            padding: 10px;
+        input {
+            width: calc(100% - 20px);
+            padding: 8px;
             margin-top: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .deadline {
-            font-size: 14px;
-            color: gray;
-            margin-top: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Задачи</h1>
-        <div id="taskContainer" class="task-container"></div>
-        <input type="text" id="taskInput" placeholder="Введите задачу...">
-        <input type="date" id="taskDeadline" placeholder="Укажите срок...">
+        <h1>Добро пожаловать в Mini App!</h1>
+        <button id="reporting">Отчетность</button>
+        <button id="tasks">Задачи</button>
     </div>
-
+    <div id="taskPage" style="display:none;">
+        <button id="addTask">+</button>
+        <div class="task-container" id="taskContainer"></div>
+    </div>
     <script>
-        const taskInput = document.getElementById('taskInput');
-        const taskDeadline = document.getElementById('taskDeadline');
-        const taskContainer = document.getElementById('taskContainer');
+        document.getElementById('tasks').addEventListener('click', () => {
+            document.querySelector('.container').style.display = 'none';
+            document.getElementById('taskPage').style.display = 'block';
+        });
+
+        document.getElementById('addTask').addEventListener('click', () => {
+            addTask();
+        });
 
         function addTask() {
-            if (taskInput.value.trim() !== '') {
-                const task = document.createElement('div');
-                task.className = 'task';
+            const taskContainer = document.getElementById('taskContainer');
+            const taskDiv = document.createElement('div');
+            taskDiv.className = 'task';
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = 'Введите задачу';
+            
+            input.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' && input.value.trim() !== '') {
+                    const taskText = document.createElement('span');
+                    taskText.textContent = input.value;
+                    input.replaceWith(taskText);
+                    
+                    const dateInput = document.createElement('input');
+                    dateInput.type = 'date';
+                    taskDiv.appendChild(dateInput);
+                }
+            });
 
-                const taskText = document.createElement('div');
-                taskText.textContent = taskInput.value;
-
-                const deadlineText = document.createElement('div');
-                deadlineText.className = 'deadline';
-                deadlineText.textContent = taskDeadline.value ? `Срок: ${taskDeadline.value}` : 'Срок не указан';
-
-                task.appendChild(taskText);
-                task.appendChild(deadlineText);
-                taskContainer.appendChild(task);
-
-                taskInput.value = '';
-                taskDeadline.value = '';
-            }
+            taskDiv.appendChild(input);
+            taskContainer.appendChild(taskDiv);
+            input.focus();
         }
-
-        taskInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                addTask();
-            }
-        });
-
-        taskDeadline.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                addTask();
-            }
-        });
     </script>
 </body>
 </html>
+
