@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Mini App</title>
+    <title>Telegram Mini App - Задачи</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -12,7 +12,9 @@
             margin: 0;
             padding: 0;
             background-color: black;
-            background-image: url('https://www.transparenttextures.com/patterns/snow.png');
+            background-image: url('snowflakes.png'); /* Добавляем орнамент снежинок */
+            background-size: cover;
+            color: white;
         }
         .container {
             margin-top: 50px;
@@ -27,51 +29,31 @@
             cursor: pointer;
             margin: 5px;
         }
-        .task-container {
-            margin-top: 20px;
-            text-align: left;
-            width: 80%;
-            margin-left: auto;
-            margin-right: auto;
-        }
         .task {
             background-color: lightgray;
             padding: 10px;
             margin: 5px 0;
             border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         input {
-            width: calc(100% - 20px);
-            padding: 8px;
+            padding: 5px;
             margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Добро пожаловать в Mini App!</h1>
-        <button id="reporting">Отчетность</button>
-        <button id="tasks">Задачи</button>
-    </div>
-    <div id="taskPage" style="display:none;">
+        <h1>Задачи</h1>
         <button id="addTask">+</button>
-        <div class="task-container" id="taskContainer"></div>
+        <button id="exportTasks">Выгрузить в Word</button>
+        <div id="taskList"></div>
     </div>
-    <script>
-        document.getElementById('tasks').addEventListener('click', () => {
-            document.querySelector('.container').style.display = 'none';
-            document.getElementById('taskPage').style.display = 'block';
-        });
 
-        document.getElementById('addTask').addEventListener('click', () => {
-            addTask();
-        });
+    <script>
+        document.getElementById('addTask').addEventListener('click', addTask);
+        document.getElementById('exportTasks').addEventListener('click', exportToWord);
 
         function addTask() {
-            const taskContainer = document.getElementById('taskContainer');
             const taskDiv = document.createElement('div');
             taskDiv.className = 'task';
             
@@ -79,23 +61,33 @@
             input.type = 'text';
             input.placeholder = 'Введите задачу';
             
-            input.addEventListener('keydown', function(event) {
-                if (event.key === 'Enter' && input.value.trim() !== '') {
-                    const taskText = document.createElement('span');
-                    taskText.textContent = input.value;
-                    input.replaceWith(taskText);
-                    
-                    const dateInput = document.createElement('input');
-                    dateInput.type = 'date';
-                    taskDiv.appendChild(dateInput);
+            const dateInput = document.createElement('input');
+            dateInput.type = 'date';
+            
+            input.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    addTask();
                 }
             });
-
+            
             taskDiv.appendChild(input);
-            taskContainer.appendChild(taskDiv);
-            input.focus();
+            taskDiv.appendChild(dateInput);
+            document.getElementById('taskList').appendChild(taskDiv);
+        }
+
+        function exportToWord() {
+            const tasks = document.querySelectorAll('.task input[type="text"]');
+            let taskText = 'Список задач:\n\n';
+            tasks.forEach(task => {
+                taskText += '- ' + task.value + '\n';
+            });
+            
+            const blob = new Blob([taskText], { type: 'application/msword' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'tasks.docx';
+            link.click();
         }
     </script>
 </body>
 </html>
-
