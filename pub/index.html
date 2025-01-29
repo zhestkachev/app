@@ -12,8 +12,8 @@
             margin: 0;
             padding: 0;
             background-color: black;
-            background-image: url('snowflakes.png');
-            background-repeat: repeat;
+            background-image: url('https://www.transparenttextures.com/patterns/snow.png');
+            color: white;
         }
         .container {
             margin-top: 50px;
@@ -26,15 +26,15 @@
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
-            margin: 5px;
+            margin: 10px;
         }
         .task-container {
             margin-top: 20px;
         }
         .task {
-            background-color: lightgray;
+            background-color: #d3d3d3;
             padding: 10px;
-            margin: 5px;
+            margin: 5px 0;
             border-radius: 5px;
         }
     </style>
@@ -42,69 +42,60 @@
 <body>
     <div class="container">
         <h1>Добро пожаловать в Mini App!</h1>
-        <button id="report">Отчетность</button>
-        <button id="tasks">Задачи</button>
+        <button onclick="openTasks()">Задачи</button>
+        <button onclick="openReports()">Отчетность</button>
+        <button onclick="window.open('https://docs.google.com/presentation/d/1vFeM2gMuUhfN0MRWz94BtPYe6AlV6Z3V7gZ_2P6rapE/edit#slide=id.p1', '_blank')">Спринты 10х7</button>
     </div>
-    <div id="taskPage" class="container" style="display:none;">
-        <button id="addTask">+</button>
-        <div id="taskList" class="task-container"></div>
+    
+    <div id="taskPage" style="display:none;">
+        <h2>Задачи</h2>
+        <button onclick="addTask()">+</button>
+        <button onclick="downloadTasks()">Выгрузить список задач в Word</button>
+        <div class="task-container" id="taskContainer"></div>
     </div>
-    <button id="exportTasks">Выгрузить список задач в Word</button>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        
-        document.getElementById('tasks').addEventListener('click', () => {
+        function openTasks() {
             document.querySelector('.container').style.display = 'none';
             document.getElementById('taskPage').style.display = 'block';
-        });
-        
-        document.getElementById('addTask').addEventListener('click', () => {
-            addTask();
-        });
-        
-        function addTask() {
-            const taskContainer = document.createElement('div');
-            taskContainer.classList.add('task');
-            
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.placeholder = 'Введите задачу';
-            input.addEventListener('keypress', function(event) {
-                if (event.key === 'Enter') {
-                    addTask();
-                }
-            });
-            
-            const dateInput = document.createElement('input');
-            dateInput.type = 'date';
-            
-            taskContainer.appendChild(input);
-            taskContainer.appendChild(dateInput);
-            document.getElementById('taskList').appendChild(taskContainer);
         }
         
-        document.getElementById('exportTasks').addEventListener('click', () => {
-            exportTasksToWord();
-        });
+        function openReports() {
+            alert("Раздел 'Отчетность' пока не реализован.");
+        }
         
-        function exportTasksToWord() {
-            let content = 'Список задач:\n\n';
-            document.querySelectorAll('.task').forEach(task => {
-                const text = task.querySelector('input[type=text]').value;
-                const date = task.querySelector('input[type=date]').value;
-                content += `- ${text} (Срок: ${date})\n`;
+        function addTask() {
+            let taskInput = document.createElement("input");
+            taskInput.type = "text";
+            taskInput.placeholder = "Введите задачу";
+            taskInput.className = "task";
+            taskInput.addEventListener("keypress", function(event) {
+                if (event.key === "Enter" && taskInput.value.trim() !== "") {
+                    let dueDate = prompt("Укажите срок выполнения (дд.мм.гггг):");
+                    let taskDiv = document.createElement("div");
+                    taskDiv.className = "task";
+                    taskDiv.textContent = taskInput.value + " (Срок: " + dueDate + ")";
+                    document.getElementById("taskContainer").appendChild(taskDiv);
+                    taskInput.value = "";
+                }
             });
-            
-            const blob = new Blob([content], { type: 'application/msword' });
-            const link = document.createElement('a');
+            document.getElementById("taskContainer").appendChild(taskInput);
+            taskInput.focus();
+        }
+        
+        function downloadTasks() {
+            let tasks = document.querySelectorAll('.task');
+            let docContent = "Список задач:\n\n";
+            tasks.forEach(task => {
+                docContent += task.textContent + "\n";
+            });
+            let blob = new Blob([docContent], { type: "application/msword" });
+            let link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = 'tasks.doc';
-            document.body.appendChild(link);
+            link.download = "tasks.docx";
             link.click();
-            document.body.removeChild(link);
         }
     </script>
 </body>
 </html>
+
