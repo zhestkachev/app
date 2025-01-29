@@ -3,18 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Mini App</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Mini App Tasks</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 0;
             padding: 0;
-            background-color: #000000; /* Черный фон */
-            color: #ffffff; /* Белый текст для контраста */
-            background-image: url('https://www.transparenttextures.com/patterns/snow.png'); /* Орнамент снежинок */
-            background-size: auto; /* Масштаб снежинок */
+            background-color: black;
+            color: white;
         }
         .container {
             margin-top: 50px;
@@ -27,27 +24,81 @@
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
+            margin: 5px;
+        }
+        .task-container {
+            margin-top: 20px;
+            text-align: left;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .task {
+            background-color: #f0f0f0;
+            color: black;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        input[type="text"], input[type="date"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .deadline {
+            font-size: 14px;
+            color: gray;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Добро пожаловать в Mini App!</h1>
-        <p>Нажмите кнопку ниже, чтобы отправить данные в бот.</p>
-        <button id="sendData">Отправить данные</button>
+        <h1>Задачи</h1>
+        <div id="taskContainer" class="task-container"></div>
+        <input type="text" id="taskInput" placeholder="Введите задачу...">
+        <input type="date" id="taskDeadline" placeholder="Укажите срок...">
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
+        const taskInput = document.getElementById('taskInput');
+        const taskDeadline = document.getElementById('taskDeadline');
+        const taskContainer = document.getElementById('taskContainer');
 
-        // Настройки мини-приложения
-        tg.ready();
-        tg.MainButton.setText("Закрыть Mini App");
-        tg.MainButton.show();
+        function addTask() {
+            if (taskInput.value.trim() !== '') {
+                const task = document.createElement('div');
+                task.className = 'task';
 
-        // Отправка данных
-        document.getElementById('sendData').addEventListener('click', () => {
-            tg.sendData(JSON.stringify({ message: "Привет из Mini App!" })); // Отправка данных в бот
+                const taskText = document.createElement('div');
+                taskText.textContent = taskInput.value;
+
+                const deadlineText = document.createElement('div');
+                deadlineText.className = 'deadline';
+                deadlineText.textContent = taskDeadline.value ? `Срок: ${taskDeadline.value}` : 'Срок не указан';
+
+                task.appendChild(taskText);
+                task.appendChild(deadlineText);
+                taskContainer.appendChild(task);
+
+                taskInput.value = '';
+                taskDeadline.value = '';
+            }
+        }
+
+        taskInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        taskDeadline.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                addTask();
+            }
         });
     </script>
 </body>
